@@ -27,9 +27,16 @@ Originally written for the **Distant Worlds III** community expedition (3312 / 2
 
 # Custom journal path
 .\ED-ExpeditionStats.ps1 -LogPath "D:\Journals"
+
+# Filter to a single commander (when multiple share a journal folder)
+.\ED-ExpeditionStats.ps1 -Commander "SEVETAMRYN"
 ```
 
 The script automatically finds your journal folder under `Saved Games\Frontier Developments\Elite Dangerous`. Use `-LogPath` to override if your journals are elsewhere.
+
+When multiple commanders share a journal folder, the script produces a separate report for each. Use `-Commander` to filter for one.
+
+Both journal filename formats are supported: `Journal.YYYY-MM-DDTHHMMSS.01.log` (current) and `Journal.YYMMDDHHMMSS.01.log` (older).
 
 A progress bar is shown during processing and disappears before the report is printed.
 
