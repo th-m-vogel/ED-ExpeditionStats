@@ -195,12 +195,17 @@ if ($files.Count -eq 0) {
     exit
 }
 
+$fileCount = $files.Count
+$fileIndex = 0
 foreach ($file in $files) {
+    $fileIndex++
+    $pct = [int]($fileIndex / $fileCount * 100)
+    Write-Progress -Activity "Processing journals" -Status "$fileIndex / $fileCount  $($file.Name)" -PercentComplete $pct
+
     $reader = [System.IO.File]::OpenText($file.FullName)
     while (($read = $reader.ReadLine()) -ne $null) {
         try {
             $line = $read | ConvertFrom-Json
-            # Filter events within the date range
             if ($line.timestamp) {
                 $ts = [datetime]$line.timestamp
                 if ($ts -ge $startDT -and $ts -lt $endDT) {
@@ -211,6 +216,7 @@ foreach ($file in $files) {
     }
     $reader.Close()
 }
+Write-Progress -Activity "Processing journals" -Completed
 
 ###
 # Output report
