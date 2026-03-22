@@ -136,6 +136,16 @@ Function Invoke-StatEvent {
         $Script:lastOnCarrier = ($line.StationType -eq "FleetCarrier")
     }
 
+    ### Online carrier jump
+    if ($line.event -eq "CarrierJump" -and $line.StarPos) {
+        if ($Script:lastStarPos) {
+            $stats.CarrierDistance += Get-Distance -pos1 $Script:lastStarPos -pos2 $line.StarPos
+        }
+        $Script:lastStarPos   = $line.StarPos
+        $Script:lastSystem    = $line.StarSystem
+        $Script:lastOnCarrier = $true
+    }
+
     ### FSD jumps
     if ($line.event -eq "FSDJump") {
         $stats.FsdJumps++
@@ -232,7 +242,7 @@ Write-Host "=================================================="
 Write-Host ""
 Write-Host "DISTANCE TRAVELED"
 Write-Host ("  FSD:              {0:N1} ly" -f $stats.FsdDistance)
-Write-Host ("  Carrier (offline):{0:N1} ly" -f $stats.CarrierDistance)
+Write-Host ("  Carrier:          {0:N1} ly" -f $stats.CarrierDistance)
 Write-Host ("  Total:            {0:N1} ly" -f $totalDistance)
 Write-Host ""
 Write-Host "EXPLORATION"
