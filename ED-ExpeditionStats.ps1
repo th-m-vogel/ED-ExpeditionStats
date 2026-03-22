@@ -62,14 +62,14 @@ $stats = @{
     SystemsVisited     = [System.Collections.Generic.HashSet[string]]::new()
     SystemsDiscovered  = [System.Collections.Generic.HashSet[string]]::new()
     CodexEntries       = 0
-    EarthLike          = 0
-    WaterWorld         = 0
-    AmmoniaWorld       = 0
-    Terraformable      = 0
-    NeutronStar        = 0
-    WhiteDwarf         = 0
-    BlackHole          = 0
-    WolfRayet          = 0
+    EarthLike          = [System.Collections.Generic.HashSet[string]]::new()
+    WaterWorld         = [System.Collections.Generic.HashSet[string]]::new()
+    AmmoniaWorld       = [System.Collections.Generic.HashSet[string]]::new()
+    Terraformable      = [System.Collections.Generic.HashSet[string]]::new()
+    NeutronStar        = [System.Collections.Generic.HashSet[string]]::new()
+    WhiteDwarf         = [System.Collections.Generic.HashSet[string]]::new()
+    BlackHole          = [System.Collections.Generic.HashSet[string]]::new()
+    WolfRayet          = [System.Collections.Generic.HashSet[string]]::new()
 }
 
 # For offline carrier distance tracking
@@ -176,20 +176,22 @@ Function Invoke-StatEvent {
             $stats.SystemsDiscovered.Add($line.StarSystem) | Out-Null
         }
 
+        $bodyKey = $line.BodyName
+
         # Special planets
         switch ($line.PlanetClass) {
-            "Earthlike body"  { $stats.EarthLike++ }
-            "Water world"     { $stats.WaterWorld++ }
-            "Ammonia world"   { $stats.AmmoniaWorld++ }
+            "Earthlike body"  { $stats.EarthLike.Add($bodyKey)   | Out-Null }
+            "Water world"     { $stats.WaterWorld.Add($bodyKey)  | Out-Null }
+            "Ammonia world"   { $stats.AmmoniaWorld.Add($bodyKey)| Out-Null }
         }
-        if ($line.TerraformState -eq "Terraformable") { $stats.Terraformable++ }
+        if ($line.TerraformState -eq "Terraformable") { $stats.Terraformable.Add($bodyKey) | Out-Null }
 
         # Special stars
         if ($line.StarType) {
-            if ($line.StarType -eq "N")                          { $stats.NeutronStar++ }
-            elseif ($line.StarType -eq "BH")                     { $stats.BlackHole++ }
-            elseif ($line.StarType -match "^D")                  { $stats.WhiteDwarf++ }
-            elseif ($line.StarType -match "^W")                  { $stats.WolfRayet++ }
+            if ($line.StarType -eq "N")                          { $stats.NeutronStar.Add($bodyKey) | Out-Null }
+            elseif ($line.StarType -eq "BH")                     { $stats.BlackHole.Add($bodyKey)  | Out-Null }
+            elseif ($line.StarType -match "^D")                  { $stats.WhiteDwarf.Add($bodyKey) | Out-Null }
+            elseif ($line.StarType -match "^W")                  { $stats.WolfRayet.Add($bodyKey)  | Out-Null }
         }
     }
 }
@@ -255,14 +257,14 @@ Write-Host ("  Total jumps:      {0}" -f $stats.FsdJumps)
 Write-Host ("  Supercharged:     {0}" -f $stats.FsdSupercharged)
 Write-Host ""
 Write-Host "FIRST DISCOVERIES"
-Write-Host ("  Earth-like worlds:{0}" -f $stats.EarthLike)
-Write-Host ("  Water worlds:     {0}" -f $stats.WaterWorld)
-Write-Host ("  Ammonia worlds:   {0}" -f $stats.AmmoniaWorld)
-Write-Host ("  Terraformable:    {0}" -f $stats.Terraformable)
-Write-Host ("  Neutron stars:    {0}" -f $stats.NeutronStar)
-Write-Host ("  White dwarfs:     {0}" -f $stats.WhiteDwarf)
-Write-Host ("  Black holes:      {0}" -f $stats.BlackHole)
-Write-Host ("  Wolf-Rayet stars: {0}" -f $stats.WolfRayet)
+Write-Host ("  Earth-like worlds:{0}" -f $stats.EarthLike.Count)
+Write-Host ("  Water worlds:     {0}" -f $stats.WaterWorld.Count)
+Write-Host ("  Ammonia worlds:   {0}" -f $stats.AmmoniaWorld.Count)
+Write-Host ("  Terraformable:    {0}" -f $stats.Terraformable.Count)
+Write-Host ("  Neutron stars:    {0}" -f $stats.NeutronStar.Count)
+Write-Host ("  White dwarfs:     {0}" -f $stats.WhiteDwarf.Count)
+Write-Host ("  Black holes:      {0}" -f $stats.BlackHole.Count)
+Write-Host ("  Wolf-Rayet stars: {0}" -f $stats.WolfRayet.Count)
 Write-Host ""
 if ($stats.Deaths -gt 0) {
     Write-Host ("  Note: {0} death(s) recorded. Distance figures may include recovery travel." -f $stats.Deaths)
