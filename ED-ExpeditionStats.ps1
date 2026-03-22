@@ -62,6 +62,8 @@ $stats = @{
     PayoutCartographic = 0.0
     PayoutGenetic      = 0.0
     PayoutCodex        = 0.0
+    GeneticScans       = 0
+    GeneticSpecies     = [System.Collections.Generic.HashSet[string]]::new()
     SystemsVisited     = [System.Collections.Generic.HashSet[string]]::new()
     SystemsDiscovered  = [System.Collections.Generic.HashSet[string]]::new()
     CodexEntries       = [System.Collections.Generic.HashSet[string]]::new()
@@ -172,6 +174,11 @@ Function Invoke-StatEvent {
         }
     }
 
+    if ($line.event -eq "ScanOrganic" -and $line.ScanType -eq "Analyse") {
+        $stats.GeneticScans++
+        $stats.GeneticSpecies.Add($line.Species) | Out-Null
+    }
+
     if ($line.event -eq "RedeemVoucher" -and $line.Type -eq "codex") {
         $stats.PayoutCodex += $line.Amount
     }
@@ -268,7 +275,7 @@ Write-Host ""
 $totalPayout = $stats.PayoutCartographic + $stats.PayoutGenetic + $stats.PayoutCodex
 Write-Host "PAYOUTS"
 Write-Host ("  Cartographic:     {0:N0} cr" -f $stats.PayoutCartographic)
-Write-Host ("  Genetic:          {0:N0} cr" -f $stats.PayoutGenetic)
+Write-Host ("  Genetic:          {0:N0} cr  ({1} scans, {2} unique species)" -f $stats.PayoutGenetic, $stats.GeneticScans, $stats.GeneticSpecies.Count)
 Write-Host ("  Codex:            {0:N0} cr" -f $stats.PayoutCodex)
 Write-Host ("  Total:            {0:N0} cr" -f $totalPayout)
 Write-Host ""
