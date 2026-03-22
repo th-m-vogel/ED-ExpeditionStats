@@ -31,6 +31,8 @@ Originally written for the **Distant Worlds III** community expedition (3312 / 2
 
 The script automatically finds your journal folder under `Saved Games\Frontier Developments\Elite Dangerous`. Use `-LogPath` to override if your journals are elsewhere.
 
+A progress bar is shown during processing and disappears before the report is printed.
+
 ## Output
 
 ```
@@ -39,19 +41,25 @@ The script automatically finds your journal folder under `Saved Games\Frontier D
   Period: 2026-01-18 to now
 ==================================================
 
-DISTANCE TRAVELED
-  FSD:              168,496.8 ly
-  Carrier:           32,371.6 ly
-  Total:            200,868.4 ly
+PAYOUTS
+  Cartographic:     630,763,121 cr
+  Genetic:       15,371,836,900 cr  (845 scans, 81 unique species)
+  Codex:             10,143,750 cr
+  Total:         16,012,743,771 cr
 
 EXPLORATION
   Systems visited:        1736
   Systems discovered:      793
-  Codex entries:           961
+  Codex entries:           884
 
 FSD JUMPS
   Total jumps:            1824
   Supercharged:            310
+
+DISTANCE TRAVELED
+  FSD:              168,496.8 ly
+  Carrier:           32,371.6 ly
+  Total:            200,868.4 ly
 
 FIRST DISCOVERIES
   Earth-like worlds:         2
@@ -72,12 +80,17 @@ FIRST DISCOVERIES
 
 | Stat | Source |
 |------|--------|
-| FSD distance | Sum of `FSDJump.JumpDist` |
-| Carrier distance | `CarrierJump` events (online) + StarPos delta across sessions (offline while docked) |
+| Cartographic payout | Sum of `MultiSellExplorationData.TotalEarnings` |
+| Genetic payout | Sum of `Value + Bonus` per entry in `SellOrganicData.BioData` |
+| Genetic scans | `ScanOrganic` events with `ScanType=Analyse` (completed scans) |
+| Unique species | Unique `Species` values from completed scans |
+| Codex payout | `RedeemVoucher` where `Type=codex` |
 | Systems visited | Unique destinations from `FSDJump` |
 | Systems discovered | Unique systems where a star `Scan` had `WasDiscovered=false` |
 | Codex entries | Unique `EntryID + Region` combinations where `IsNewEntry=true` |
 | Supercharged jumps | `JetConeBoost` events (neutron star / white dwarf cone) |
+| FSD distance | Sum of `FSDJump.JumpDist` |
+| Carrier distance | `CarrierJump` events (online) + StarPos delta across sessions (offline while docked) |
 | First discoveries | Unique bodies with `WasDiscovered=false` in `Scan` events |
 | Deaths | `Died` events — distance figures may include recovery travel |
 
@@ -85,4 +98,5 @@ FIRST DISCOVERIES
 
 - Journal files are selected by filename date, so sessions spanning midnight may be partially included or excluded at the boundaries.
 - Carrier distance covers both online jumps (logged via `CarrierJump` event) and offline jumps while docked (calculated from StarPos coordinates between sessions).
-- First footfall count is not included — the game does not log a dedicated first footfall event in the journal.
+- Codex entries are per-region in Elite Dangerous — the same species in a different galactic region counts as a new entry.
+- First footfall count is not included — the game tracks first footfalls in its database but does not log a dedicated journal event.
