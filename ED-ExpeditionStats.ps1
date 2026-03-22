@@ -29,8 +29,8 @@ param(
 )
 
 if (-not $LogPath) {
-    $home = if ($env:USERPROFILE) { $env:USERPROFILE } else { $env:HOME }
-    $LogPath = Join-Path $home "Saved Games\Frontier Developments\Elite Dangerous"
+    $homePath = if ($env:USERPROFILE) { $env:USERPROFILE } else { $env:HOME }
+    $LogPath = Join-Path $homePath "Saved Games\Frontier Developments\Elite Dangerous"
 }
 $FilePattern = "Journal*.log"
 
