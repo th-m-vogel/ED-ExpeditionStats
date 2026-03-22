@@ -61,7 +61,7 @@ $stats = @{
     Deaths             = 0
     SystemsVisited     = [System.Collections.Generic.HashSet[string]]::new()
     SystemsDiscovered  = [System.Collections.Generic.HashSet[string]]::new()
-    CodexEntries       = 0
+    CodexEntries       = [System.Collections.Generic.HashSet[string]]::new()
     EarthLike          = [System.Collections.Generic.HashSet[string]]::new()
     WaterWorld         = [System.Collections.Generic.HashSet[string]]::new()
     AmmoniaWorld       = [System.Collections.Generic.HashSet[string]]::new()
@@ -163,9 +163,9 @@ Function Invoke-StatEvent {
         $stats.Deaths++
     }
 
-    ### Codex entries
-    if ($line.event -eq "CodexEntry") {
-        $stats.CodexEntries++
+    ### Codex entries — unique EntryID+Region combinations, new entries only
+    if ($line.event -eq "CodexEntry" -and $line.IsNewEntry -eq $true) {
+        $stats.CodexEntries.Add("$($line.EntryID)_$($line.Region)") | Out-Null
     }
 
     ### First discoveries via Scan
@@ -250,7 +250,7 @@ Write-Host ""
 Write-Host "EXPLORATION"
 Write-Host ("  Systems visited:  {0}" -f $stats.SystemsVisited.Count)
 Write-Host ("  Systems discovered:{0}" -f $stats.SystemsDiscovered.Count)
-Write-Host ("  Codex entries:    {0}" -f $stats.CodexEntries)
+Write-Host ("  Codex entries:    {0}" -f $stats.CodexEntries.Count)
 Write-Host ""
 Write-Host "FSD JUMPS"
 Write-Host ("  Total jumps:      {0}" -f $stats.FsdJumps)
