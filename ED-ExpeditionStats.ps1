@@ -106,12 +106,24 @@ Function Get-Distance {
 ###
 # Journal file filtering by filename date
 ###
+Function Get-JournalFileDate {
+    param([string]$FileName)
+    # Format 1: Journal.YYYY-MM-DDTHHMMSS.01.log
+    if ($FileName -match "Journal\.(\d{4}-\d{2}-\d{2})T") {
+        return [datetime]::ParseExact($Matches[1], "yyyy-MM-dd", $null)
+    }
+    # Format 2: Journal.YYMMDDHHMMSS.01.log
+    if ($FileName -match "Journal\.(\d{2})(\d{2})(\d{2})\d+\.") {
+        return [datetime]::new(2000 + [int]$Matches[1], [int]$Matches[2], [int]$Matches[3])
+    }
+    return $null
+}
+
 Function Get-JournalFiles {
     Get-ChildItem -Path $LogPath -Filter $FilePattern |
         Where-Object {
-            $_.Name -match "Journal\.(\d{4}-\d{2}-\d{2})" | Out-Null
-            $fileDate = [datetime]::ParseExact($Matches[1], "yyyy-MM-dd", $null)
-            $fileDate -ge $startDT.Date -and $fileDate -lt $endDT.Date
+            $fileDate = Get-JournalFileDate -FileName $_.Name
+            $fileDate -and $fileDate -ge $startDT.Date -and $fileDate -lt $endDT.Date
         } |
         Sort-Object Name
 }
@@ -122,7 +134,7 @@ Function Get-JournalFiles {
 Function Get-FileCommander {
     param($FilePath)
     $reader = [System.IO.File]::OpenText($FilePath)
-    $name = "Unknown"
+    $name = $null
     $linesRead = 0
     while (($read = $reader.ReadLine()) -ne $null -and $linesRead -lt 20) {
         $linesRead++
@@ -320,6 +332,9 @@ foreach ($file in $files) {
     Write-Progress -Activity "Processing journals" -Status "$fileIndex / $fileCount  $($file.Name)" -PercentComplete $pct
 
     $fileCommander = Get-FileCommander -FilePath $file.FullName
+
+    # Skip files with no commander (empty/crash sessions)
+    if (-not $fileCommander) { continue }
 
     # Apply -Commander filter if specified
     if ($Commander -and $fileCommander -ne $Commander) { continue }
