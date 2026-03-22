@@ -59,6 +59,9 @@ $stats = @{
     FsdSupercharged    = 0
     CarrierDistance    = 0.0
     Deaths             = 0
+    PayoutCartographic = 0.0
+    PayoutGenetic      = 0.0
+    PayoutCodex        = 0.0
     SystemsVisited     = [System.Collections.Generic.HashSet[string]]::new()
     SystemsDiscovered  = [System.Collections.Generic.HashSet[string]]::new()
     CodexEntries       = [System.Collections.Generic.HashSet[string]]::new()
@@ -158,6 +161,21 @@ Function Invoke-StatEvent {
         $stats.FsdSupercharged++
     }
 
+    ### Payouts
+    if ($line.event -eq "MultiSellExplorationData") {
+        $stats.PayoutCartographic += $line.TotalEarnings
+    }
+
+    if ($line.event -eq "SellOrganicData") {
+        foreach ($entry in $line.BioData) {
+            $stats.PayoutGenetic += $entry.Value + $entry.Bonus
+        }
+    }
+
+    if ($line.event -eq "RedeemVoucher" -and $line.Type -eq "codex") {
+        $stats.PayoutCodex += $line.Amount
+    }
+
     ### Deaths
     if ($line.event -eq "Died") {
         $stats.Deaths++
@@ -246,6 +264,13 @@ Write-Host "DISTANCE TRAVELED"
 Write-Host ("  FSD:              {0:N1} ly" -f $stats.FsdDistance)
 Write-Host ("  Carrier:          {0:N1} ly" -f $stats.CarrierDistance)
 Write-Host ("  Total:            {0:N1} ly" -f $totalDistance)
+Write-Host ""
+$totalPayout = $stats.PayoutCartographic + $stats.PayoutGenetic + $stats.PayoutCodex
+Write-Host "PAYOUTS"
+Write-Host ("  Cartographic:     {0:N0} cr" -f $stats.PayoutCartographic)
+Write-Host ("  Genetic:          {0:N0} cr" -f $stats.PayoutGenetic)
+Write-Host ("  Codex:            {0:N0} cr" -f $stats.PayoutCodex)
+Write-Host ("  Total:            {0:N0} cr" -f $totalPayout)
 Write-Host ""
 Write-Host "EXPLORATION"
 Write-Host ("  Systems visited:  {0}" -f $stats.SystemsVisited.Count)
