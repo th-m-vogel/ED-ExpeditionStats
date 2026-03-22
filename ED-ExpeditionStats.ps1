@@ -20,12 +20,14 @@
 #   -EndDate      Expedition end date (optional, defaults to today).
 #                 Accepts same formats as -StartDate.
 #   -LogPath      Path to Elite Dangerous journal folder (optional).
+#   -Commander    Filter by commander name (optional).
 #
 #############################################################################
 param(
     [string]$StartDate = "2026-01-18",
     [string]$EndDate   = "",
-    [string]$LogPath   = ""
+    [string]$LogPath   = "",
+    [string]$Commander = $null
 )
 
 if (-not $LogPath) {
@@ -97,9 +99,18 @@ Function Get-Distance {
 Function Get-JournalFiles {
     Get-ChildItem -Path $LogPath -Filter $FilePattern |
         Where-Object {
-            $_.Name -match "Journal\.(\d{4}-\d{2}-\d{2})" |  Out-Null
-            $fileDate = [datetime]::ParseExact($Matches[1], "yyyy-MM-dd", $null)
-            $fileDate -ge $startDT.Date -and $fileDate -lt $endDT.Date
+            if ($_.Name -match "Journal\.(\d{4}-\d{2}-\d{2})") {
+                $fileDate = [datetime]::ParseExact($Matches[1], "yyyy-MM-dd", $null)
+                $fileDate -ge $startDT.Date -and $fileDate -lt $endDT.Date
+            } elseif ($_.Name -match "Journal\.(\d{6})") {
+                # Older Horizons log format with YYMMDD - assume 2000s
+                $fileDate = [datetime]::ParseExact($Matches[1], "yyMMdd", $null)
+                $fileDate -ge $startDT.Date -and $fileDate -lt $endDT.Date
+            }
+            else {
+                Write-Host "Skipping file with unrecognized name format: $($_.Name)"
+                $false
+            }
         } |
         Sort-Object Name
 }
@@ -238,6 +249,11 @@ foreach ($file in $files) {
             $line = $read | ConvertFrom-Json
             if ($line.timestamp) {
                 $ts = [datetime]$line.timestamp
+                if ($Commander -and $line.event -eq "Commander" -and $line.Name -cne $Commander) {
+                    # Skip events if this is the wrong commander
+                    Write-Output "Skipping events for commander $($line.Name) (looking for $Commander)"
+                    break
+                }
                 if ($ts -ge $startDT -and $ts -lt $endDT) {
                     Invoke-StatEvent -line $line
                 }
