@@ -59,6 +59,9 @@ $stats = @{
     FsdSupercharged    = 0
     CarrierDistance    = 0.0
     Deaths             = 0
+    SystemsVisited     = [System.Collections.Generic.HashSet[string]]::new()
+    SystemsDiscovered  = [System.Collections.Generic.HashSet[string]]::new()
+    CodexEntries       = 0
     EarthLike          = 0
     WaterWorld         = 0
     AmmoniaWorld       = 0
@@ -137,6 +140,7 @@ Function Invoke-StatEvent {
     if ($line.event -eq "FSDJump") {
         $stats.FsdJumps++
         $stats.FsdDistance += $line.JumpDist
+        $stats.SystemsVisited.Add($line.StarSystem) | Out-Null
     }
 
     ### Supercharged jump (neutron/white dwarf cone boost)
@@ -149,8 +153,18 @@ Function Invoke-StatEvent {
         $stats.Deaths++
     }
 
+    ### Codex entries
+    if ($line.event -eq "CodexEntry") {
+        $stats.CodexEntries++
+    }
+
     ### First discoveries via Scan
     if ($line.event -eq "Scan" -and $line.WasDiscovered -eq $false) {
+
+        # Systems discovered — star scans only
+        if ($line.StarType) {
+            $stats.SystemsDiscovered.Add($line.StarSystem) | Out-Null
+        }
 
         # Special planets
         switch ($line.PlanetClass) {
@@ -214,6 +228,11 @@ Write-Host "DISTANCE TRAVELED"
 Write-Host ("  FSD:              {0:N1} ly" -f $stats.FsdDistance)
 Write-Host ("  Carrier (offline):{0:N1} ly" -f $stats.CarrierDistance)
 Write-Host ("  Total:            {0:N1} ly" -f $totalDistance)
+Write-Host ""
+Write-Host "EXPLORATION"
+Write-Host ("  Systems visited:  {0}" -f $stats.SystemsVisited.Count)
+Write-Host ("  Systems discovered:{0}" -f $stats.SystemsDiscovered.Count)
+Write-Host ("  Codex entries:    {0}" -f $stats.CodexEntries)
 Write-Host ""
 Write-Host "FSD JUMPS"
 Write-Host ("  Total jumps:      {0}" -f $stats.FsdJumps)
