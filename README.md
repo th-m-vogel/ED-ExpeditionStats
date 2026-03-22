@@ -76,7 +76,7 @@ FIRST DISCOVERIES
 | Carrier distance | `CarrierJump` events (online) + StarPos delta across sessions (offline while docked) |
 | Systems visited | Unique destinations from `FSDJump` |
 | Systems discovered | Unique systems where a star `Scan` had `WasDiscovered=false` |
-| Codex entries | Count of `CodexEntry` events |
+| Codex entries | Unique `EntryID + Region` combinations where `IsNewEntry=true` |
 | Supercharged jumps | `JetConeBoost` events (neutron star / white dwarf cone) |
 | First discoveries | Unique bodies with `WasDiscovered=false` in `Scan` events |
 | Deaths | `Died` events — distance figures may include recovery travel |
