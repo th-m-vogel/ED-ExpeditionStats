@@ -252,7 +252,7 @@ Function Invoke-StatEvent {
 
         if ($line.StarType) {
             if ($line.StarType -eq "N")                { $s.NeutronStar.Add($bodyKey) | Out-Null }
-            elseif ($line.StarType -eq "BH")           { $s.BlackHole.Add($bodyKey)   | Out-Null }
+            elseif ($line.StarType -eq "H")            { $s.BlackHole.Add($bodyKey)   | Out-Null }
             elseif ($line.StarType -match "^D")        { $s.WhiteDwarf.Add($bodyKey)  | Out-Null }
             elseif ($line.StarType -match "^W")        { $s.WolfRayet.Add($bodyKey)   | Out-Null }
         }
