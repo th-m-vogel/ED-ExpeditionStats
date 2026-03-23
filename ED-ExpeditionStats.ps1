@@ -277,7 +277,8 @@ Function Write-CommanderReport {
     Write-Host ""
     Write-Host "PAYOUTS"
     Write-Host ("  Cartographic:     {0:N0} cr" -f $s.PayoutCartographic)
-    Write-Host ("  Genetic:          {0:N0} cr  ({1} scans, {2} unique species)" -f $s.PayoutGenetic, $s.GeneticScans, $s.GeneticSpecies.Count)
+    $geneticLine = "  Genetic:          {0:N0} cr  ({1} scans, {2} unique species)" -f $s.PayoutGenetic, $s.GeneticScans, $s.GeneticSpecies.Count
+    Write-Host $geneticLine
     Write-Host ("  Codex:            {0:N0} cr" -f $s.PayoutCodex)
     Write-Host ("  Total:            {0:N0} cr" -f $totalPayout)
     Write-Host ""
