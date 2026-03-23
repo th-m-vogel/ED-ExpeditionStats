@@ -38,7 +38,7 @@ if (-not $LogPath) {
 $FilePattern = "Journal*.log"
 
 ###
-# Date parsing — accept real-world or in-game (offset 1286 years)
+# Date parsing - accept real-world or in-game (offset 1286 years)
 ###
 Function Convert-ToRealDate {
     param([string]$DateStr)
@@ -151,7 +151,7 @@ Function Get-FileCommander {
 }
 
 ###
-# Event processing — operates on a passed-in stats object
+# Event processing - operates on a passed-in stats object
 ###
 Function Invoke-StatEvent {
     param($line, $s)
@@ -229,7 +229,7 @@ Function Invoke-StatEvent {
         $s.Deaths++
     }
 
-    ### Codex entries — unique EntryID+Region combinations, new entries only
+    ### Codex entries - unique EntryID+Region combinations, new entries only
     if ($line.event -eq "CodexEntry" -and $line.IsNewEntry -eq $true) {
         $s.CodexEntries.Add("$($line.EntryID)_$($line.Region)") | Out-Null
     }
@@ -271,7 +271,7 @@ Function Write-CommanderReport {
 
     Write-Host ""
     Write-Host "=================================================="
-    Write-Host "  Expedition Statistics — $Name"
+    Write-Host "  Expedition Statistics - $Name"
     Write-Host "  Period: $StartDate to $endLabel"
     Write-Host "=================================================="
     Write-Host ""
@@ -314,7 +314,7 @@ Function Write-CommanderReport {
 }
 
 ###
-# Main — process journals
+# Main - process journals
 ###
 $files = Get-JournalFiles
 if ($files.Count -eq 0) {
